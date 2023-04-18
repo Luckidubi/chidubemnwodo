@@ -1,4 +1,6 @@
 import {
+  Box,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
@@ -7,18 +9,17 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { onValue, ref } from "firebase/database";
 import React, { useEffect, useState } from "react";
 import { database } from "../config/app";
 
-const EmployeeTable = () => {
+const EmployeeTable = ({ selectedDate }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log(database);
+
   useEffect(() => {
     const fetchData = async () => {
       const employeeRef = ref(database, "employees");
@@ -36,14 +37,17 @@ const EmployeeTable = () => {
         }
         setData(employeeList);
         setLoading(false);
-        console.log(employeeList);
       });
-      console.log(data);
     };
     fetchData();
   }, []);
 
-  const options = { hour: "numeric", minute: "numeric", hour12: true, timeZone: "Africa/Lagos" };
+  const options = {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+    timeZone: "Africa/Lagos",
+  };
 
   const columns = [
     { id: "name", label: "Name", minWidth: 170 },
@@ -65,6 +69,10 @@ const EmployeeTable = () => {
     },
   ];
 
+  const filteredData = data.filter(
+    (employee) => employee.date === selectedDate
+  );
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -76,11 +84,18 @@ const EmployeeTable = () => {
 
   return (
     <>
-      {loading ? (
-        <Typography>Loading...</Typography>
-      ) : (
-        <Paper sx={{ width: "100%" }}>
-          <TableContainer sx={{ maxHeight: 440 }}>
+      <Paper sx={{ width: "100%" }}>
+        <TableContainer sx={{ maxHeight: 440 }}>
+          {loading ? (
+            <Box
+              my={2}
+              alignItems="center"
+              justifyContent="center"
+              display="flex"
+            >
+              <CircularProgress />
+            </Box>
+          ) : (
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -96,17 +111,16 @@ const EmployeeTable = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.keys(data)
+                {Object.keys(selectedDate ? filteredData : data)
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((key, index) => {
-                    const row = data[key];
-                    console.log("row:", row);
+                    const row = selectedDate ? filteredData[key] : data[key];
+
                     return (
                       <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                         {columns.map((column) => {
                           const value = row[column.id];
-                          console.log("columnId:", column.id);
-                          console.log("value :", value);
+
                           return (
                             <TableCell key={column.id} align={column.align}>
                               {column.format && value !== ""
@@ -120,18 +134,18 @@ const EmployeeTable = () => {
                   })}
               </TableBody>
             </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={data.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      )}
+          )}
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={data.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
     </>
   );
 };

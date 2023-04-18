@@ -1,17 +1,9 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Container,
-  Grid,
-  Link,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, Button, Container, Typography } from "@mui/material";
 import { LockOutlined } from "@mui/icons-material";
 import { useAuth } from "../context/AuthProvider";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import googleLogo from "../assets/google.svg";
 function LogIn() {
   const navigate = useNavigate();
   const { signInWithGoogle, user } = useAuth();
@@ -53,8 +45,9 @@ function LogIn() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={handleSignInWithGoogle}
+            startIcon={<img src={googleLogo} />}
           >
-            Sign In
+            Sign In With Google
           </Button>
           {/* <Grid container>
 
