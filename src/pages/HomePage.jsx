@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import EmployeeTable from "../components/EmployeeTable";
 
 function HomePage() {
-  const [filterDate, setFilterDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
 
-  const handleFilterChange = (event) => {
-    setFilterDate(event.target.value);
+  const handleSelectedDate = (event) => {
+    setSelectedDate(event.target.value);
   };
   return (
     <Container maxWidth="md" sx={{ marginTop: "2rem", marginBottom: "5rem" }}>
@@ -16,14 +16,14 @@ function HomePage() {
       <TextField
         label="Filter by Date"
         type="date"
-        value={filterDate}
-        onChange={handleFilterChange}
+        value={selectedDate}
+        onChange={handleSelectedDate}
         InputLabelProps={{
           shrink: true,
         }}
         style={{ marginTop: "1rem", marginBottom: "2rem" }}
       />
-      <EmployeeTable />
+      <EmployeeTable selectedDate={selectedDate} />
     </Container>
   );
 }

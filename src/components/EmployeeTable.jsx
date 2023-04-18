@@ -13,12 +13,12 @@ import { onValue, ref } from "firebase/database";
 import React, { useEffect, useState } from "react";
 import { database } from "../config/app";
 
-const EmployeeTable = () => {
+const EmployeeTable = ({ selectedDate }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log(database);
+
   useEffect(() => {
     const fetchData = async () => {
       const employeeRef = ref(database, "employees");
@@ -36,14 +36,19 @@ const EmployeeTable = () => {
         }
         setData(employeeList);
         setLoading(false);
-        console.log(employeeList);
+        
       });
-      console.log(data);
+
     };
     fetchData();
   }, []);
 
-  const options = { hour: "numeric", minute: "numeric", hour12: true, timeZone: "Africa/Lagos" };
+  const options = {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+    timeZone: "Africa/Lagos",
+  };
 
   const columns = [
     { id: "name", label: "Name", minWidth: 170 },
@@ -64,6 +69,10 @@ const EmployeeTable = () => {
       format: (value) => new Date(value).toLocaleTimeString("en-US", options),
     },
   ];
+
+  const filteredData = data.filter(
+    (employee) => employee.date === selectedDate
+  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -96,10 +105,10 @@ const EmployeeTable = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.keys(data)
+                {Object.keys(selectedDate ? filteredData : data)
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((key, index) => {
-                    const row = data[key];
+                    const row = selectedDate ? filteredData[key] : data[key];
                     console.log("row:", row);
                     return (
                       <TableRow hover role="checkbox" tabIndex={-1} key={index}>
