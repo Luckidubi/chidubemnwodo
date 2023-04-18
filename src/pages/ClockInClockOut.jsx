@@ -1,15 +1,16 @@
-import { Button, Grid } from "@mui/material";
+import { Alert, Button, Grid } from "@mui/material";
 import React, { useState } from "react";
 import EmployeeCard from "../components/EmployeeCard";
 import { database } from "../config/app";
 import { useAuth } from "../context/AuthProvider";
-import { onValue, push, ref, set, update } from "firebase/database";
+import { get, onValue, push, ref, set, update } from "firebase/database";
 
 function ClockInClockOut() {
   const { user } = useAuth();
   const [clockedIn, setClockIn] = useState(false);
 
-  console.log(database);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("");
 
   const handleClockIn = async () => {
     // handle clock in logic
@@ -30,23 +31,50 @@ function ClockInClockOut() {
     await onValue(employeeRef, (snapshot) => {
       if (!snapshot.exists()) {
         set(employeeRef, employeeData)
-          .then(() => console.log("successful"))
+          .then(() => {
+            console.log("successful");
+            setClockIn(true);
+
+            setAlertMessage("Clocked in successfully!");
+            setAlertSeverity("success");
+          })
           .catch((error) => {
             console.error(
               "Error writing clock in data to the database:",
               error
             );
+
+            setAlertMessage("Error clocking in!");
+            setAlertSeverity("error");
           });
       } else {
         const data = snapshot.val();
         const currentDate = new Date().toISOString().slice(0, 10);
         if (data.date !== currentDate) {
-          push(employeeRef, employeeData);
+          push(employeeRef, employeeData)
+            .then(() => {
+              setClockIn(true);
+
+              setAlertMessage("Clocked in successfully!");
+              setAlertSeverity("success");
+            })
+            .catch((error) => {
+              console.error(
+                "Error writing clock in data to the database:",
+                error
+              );
+
+              setAlertMessage("Error clocking in!");
+              setAlertSeverity("error");
+            });
+        } else {
+          setClockIn(true);
+
+          setAlertMessage("Clocked in successfully!");
+          setAlertSeverity("success");
         }
       }
     });
-
-    setClockIn(true);
   };
 
   const handleClockOut = async () => {
@@ -57,28 +85,46 @@ function ClockInClockOut() {
       `employees/${user.uid}/${new Date().toISOString().slice(0, 10)}`
     );
 
-    await onValue(employeeRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const currentDate = new Date().toISOString().slice(0, 10);
-        if (data.date === currentDate) {
-          update(employeeRef, {
-            clockOut: new Date().toISOString(),
+    const snapshot = await get(employeeRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const currentDate = new Date().toISOString().slice(0, 10);
+      if (data.date === currentDate) {
+        update(employeeRef, {
+          clockOut: new Date().toISOString(),
+        })
+          .then(() => {
+            setClockIn(false);
+            setAlertMessage("Clocked out successfully");
+            setAlertSeverity("success");
+          })
+          .catch((error) => {
+            console.error(
+              "Error writing clock out data to the database:",
+              error
+            );
           });
-          setClockIn(false);
-        } else {
-          const employeeData = {
-            name: user.displayName,
-            email: user.email,
-            clockIn: "",
-            clockOut: new Date().toISOString(),
-            date: new Date().toISOString().slice(0, 10),
-          };
-          push(employeeRef, employeeData);
-          setClockIn(false);
-        }
+      } else {
+        const employeeData = {
+          name: user.displayName,
+          email: user.email,
+          clockIn: "",
+          clockOut: new Date().toISOString(),
+          date: new Date().toISOString().slice(0, 10),
+        };
+        push(employeeRef, employeeData)
+          .then(() => setClockIn(false))
+          .catch((error) => {
+            console.error("Error clocking out:", error);
+            setAlertMessage("You have not clocked In today ");
+            setAlertSeverity("error");
+          });
       }
-    });
+    } else {
+      setClockIn(false);
+      setAlertMessage("You have not clocked In today ");
+      setAlertSeverity("error");
+    }
   };
   return (
     <Grid
@@ -89,7 +135,16 @@ function ClockInClockOut() {
       alignItems="center"
       minHeight="100vh"
       direction="column"
+      mb="1rem"
     >
+      {alertMessage && (
+        <Grid mt={1} mb={"-2rem"} item>
+          <Alert severity={alertSeverity} onClose={() => setAlertMessage("")}>
+            {alertMessage}
+          </Alert>
+        </Grid>
+      )}
+
       <Grid item xs={12} container justifyContent="center" alignItems="center">
         <Grid item>
           <EmployeeCard />
