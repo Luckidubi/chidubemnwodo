@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import logo from "../assets/avvic_logo 1.svg";
 import {
   Avatar,
   Drawer,
@@ -30,7 +31,7 @@ function Header() {
   };
 
   return (
-    <Box bgcolor="#54AEB2" py={2} px="2rem">
+    <Box className="header-bg" py={1} px="2rem">
       <Box
         display="flex"
         alignItems="center"
@@ -38,9 +39,7 @@ function Header() {
         mx={2}
       >
         <NavLink to="/" style={{ textDecoration: "none" }}>
-          <Typography variant="h6" component="span" color="#fff">
-            avcic
-          </Typography>
+          <img src={logo} alt="logo" height="100" width="100" />
         </NavLink>
         <Box display="flex">
           <Box
@@ -187,17 +186,16 @@ function Header() {
                 <Link
                   style={{
                     textDecoration: "none",
-
                   }}
                 >
                   <ListItemButton
-                   style={{
-                    textDecoration: "none",
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "flex-start",
-                    gap: ".5rem",
-                   }}
+                    style={{
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "flex-start",
+                      gap: ".5rem",
+                    }}
                   >
                     <Avatar
                       src={user?.photoURL}

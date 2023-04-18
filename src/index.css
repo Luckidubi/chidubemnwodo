@@ -1,5 +1,4 @@
-
-.navlinks  span:hover {
+.navlinks span:hover {
   background: #a2e3e3;
   border-radius: 4px;
   color: #133743;
@@ -7,10 +6,19 @@
 
 .navlinks span {
   color: #fff;
-  padding: 1rem
+  padding: 1rem;
 }
 
 .Mui-active {
   text-decoration: underline;
   text-decoration-thickness: 5px;
+}
+
+.header-bg {
+  background: rgb(84, 174, 178);
+  background: radial-gradient(
+    circle,
+    rgba(84, 174, 178, 1) 0%,
+    rgba(50, 95, 112, 1) 54%
+  );
 }
