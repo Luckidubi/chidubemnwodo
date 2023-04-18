@@ -27,17 +27,23 @@ const EmployeeTable = () => {
         const employees = snapshot.val();
         const employeeList = [];
         for (let id in employees) {
-          employeeList.push({ id, ...employees[id] });
+          const employeeData = employees[id];
+
+          for (let date in employeeData) {
+            const rowData = employeeData[date];
+            employeeList.push({ id, ...rowData });
+          }
         }
         setData(employeeList);
         setLoading(false);
+        console.log(employeeList);
       });
       console.log(data);
     };
     fetchData();
   }, []);
 
-  const options = { hour: "numeric", minute: "numeric", hour12: true };
+  const options = { hour: "numeric", minute: "numeric", hour12: true, timeZone: "Africa/Lagos" };
 
   const columns = [
     { id: "name", label: "Name", minWidth: 170 },
@@ -48,14 +54,14 @@ const EmployeeTable = () => {
       label: "Clock In",
       minWidth: 100,
       align: "right",
-      format: (value) => value.toLocaleString("en-US", options),
+      format: (value) => new Date(value).toLocaleTimeString("en-US", options),
     },
     {
       id: "clockOut",
       label: "Clock Out",
       minWidth: 100,
       align: "right",
-      format: (value) => value.toLocaleString("en-US", options),
+      format: (value) => new Date(value).toLocaleTimeString("en-US", options),
     },
   ];
 
@@ -90,16 +96,20 @@ const EmployeeTable = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data
+                {Object.keys(data)
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row, index) => {
+                  .map((key, index) => {
+                    const row = data[key];
+                    console.log("row:", row);
                     return (
                       <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                         {columns.map((column) => {
                           const value = row[column.id];
+                          console.log("columnId:", column.id);
+                          console.log("value :", value);
                           return (
                             <TableCell key={column.id} align={column.align}>
-                              {column.format && typeof value === "number"
+                              {column.format && value !== ""
                                 ? column.format(value)
                                 : value}
                             </TableCell>
