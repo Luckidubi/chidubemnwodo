@@ -115,13 +115,12 @@ const EmployeeTable = ({ selectedDate }) => {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((key, index) => {
                     const row = selectedDate ? filteredData[key] : data[key];
-                    console.log("row:", row);
+
                     return (
                       <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                         {columns.map((column) => {
                           const value = row[column.id];
-                          console.log("columnId:", column.id);
-                          console.log("value :", value);
+
                           return (
                             <TableCell key={column.id} align={column.align}>
                               {column.format && value !== ""

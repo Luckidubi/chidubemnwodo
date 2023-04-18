@@ -1,4 +1,13 @@
-import { Alert, Button, Grid } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+} from "@mui/material";
 import React, { useState } from "react";
 import EmployeeCard from "../components/EmployeeCard";
 import { database } from "../config/app";
@@ -11,6 +20,23 @@ function ClockInClockOut() {
 
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("");
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const options = {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+    timeZone: "Africa/Lagos",
+  };
 
   const handleClockIn = async () => {
     // handle clock in logic
@@ -79,7 +105,7 @@ function ClockInClockOut() {
 
   const handleClockOut = async () => {
     // handle clock out logic
-
+    setOpen(false);
     const employeeRef = ref(
       database,
       `employees/${user.uid}/${new Date().toISOString().slice(0, 10)}`
@@ -171,7 +197,11 @@ function ClockInClockOut() {
         </Grid>
         <Grid item>
           {clockedIn ? (
-            <Button variant="outlined" color="warning" onClick={handleClockOut}>
+            <Button
+              variant="outlined"
+              color="warning"
+              onClick={handleClickOpen}
+            >
               Clock Out
             </Button>
           ) : (
@@ -180,6 +210,29 @@ function ClockInClockOut() {
             </Button>
           )}
         </Grid>
+
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"You are about to Clock Out for the day?"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              It's {new Date().toLocaleTimeString("en-US", options)}. You have
+              decided to go now?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>No</Button>
+            <Button onClick={handleClockOut} autoFocus>
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </Grid>
   );
