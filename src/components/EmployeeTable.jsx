@@ -1,4 +1,6 @@
 import {
+  Box,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
@@ -7,7 +9,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { onValue, ref } from "firebase/database";
 import React, { useEffect, useState } from "react";
@@ -36,9 +37,7 @@ const EmployeeTable = ({ selectedDate }) => {
         }
         setData(employeeList);
         setLoading(false);
-        
       });
-
     };
     fetchData();
   }, []);
@@ -85,11 +84,18 @@ const EmployeeTable = ({ selectedDate }) => {
 
   return (
     <>
-      {loading ? (
-        <Typography>Loading...</Typography>
-      ) : (
-        <Paper sx={{ width: "100%" }}>
-          <TableContainer sx={{ maxHeight: 440 }}>
+      <Paper sx={{ width: "100%" }}>
+        <TableContainer sx={{ maxHeight: 440 }}>
+          {loading ? (
+            <Box
+              my={2}
+              alignItems="center"
+              justifyContent="center"
+              display="flex"
+            >
+              <CircularProgress />
+            </Box>
+          ) : (
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -129,18 +135,18 @@ const EmployeeTable = ({ selectedDate }) => {
                   })}
               </TableBody>
             </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={data.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      )}
+          )}
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={data.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
     </>
   );
 };

@@ -16,7 +16,7 @@ import { useAuth } from "../context/AuthProvider";
 function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user, logOut } = useAuth();
-  console.log(user);
+ 
   const name = user?.displayName;
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
