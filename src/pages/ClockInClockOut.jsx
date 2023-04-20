@@ -1,18 +1,21 @@
 import {
   Alert,
   Button,
+  createTheme,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Grid,
+  ThemeProvider,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import EmployeeCard from "../components/EmployeeCard";
 import { database } from "../config/app";
 import { useAuth } from "../context/AuthProvider";
 import { get, onValue, push, ref, set, update } from "firebase/database";
+import { Login, Logout } from "@mui/icons-material";
 
 function ClockInClockOut() {
   const { user } = useAuth();
@@ -60,7 +63,6 @@ function ClockInClockOut() {
           .then(() => {
             console.log("successful");
             setClockIn(true);
-
             setAlertMessage("Clocked in successfully!");
             setAlertSeverity("success");
           })
@@ -75,6 +77,7 @@ function ClockInClockOut() {
           });
       } else {
         const data = snapshot.val();
+
         const currentDate = new Date().toISOString().slice(0, 10);
         if (data.date !== currentDate) {
           push(employeeRef, employeeData)
@@ -94,10 +97,14 @@ function ClockInClockOut() {
               setAlertSeverity("error");
             });
         } else {
-          setClockIn(true);
+          // setClockIn(true);
 
-          setAlertMessage("Clocked in successfully!");
-          setAlertSeverity("success");
+          setAlertMessage(
+            `You already clocked in today by ${new Date(
+              data.clockIn
+            ).toLocaleTimeString("en-US", options)}. Tommorrow is another day!`
+          );
+          setAlertSeverity("info");
         }
       }
     });
@@ -115,12 +122,13 @@ function ClockInClockOut() {
     if (snapshot.exists()) {
       const data = snapshot.val();
       const currentDate = new Date().toISOString().slice(0, 10);
-      if (data.date === currentDate) {
+      if (data.date === currentDate && data.clockOut === "") {
         update(employeeRef, {
           clockOut: new Date().toISOString(),
         })
           .then(() => {
             setClockIn(false);
+
             setAlertMessage("Clocked out successfully");
             setAlertSeverity("success");
           })
@@ -131,20 +139,12 @@ function ClockInClockOut() {
             );
           });
       } else {
-        const employeeData = {
-          name: user.displayName,
-          email: user.email,
-          clockIn: "",
-          clockOut: new Date().toISOString(),
-          date: new Date().toISOString().slice(0, 10),
-        };
-        push(employeeRef, employeeData)
-          .then(() => setClockIn(false))
-          .catch((error) => {
-            console.error("Error clocking out:", error);
-            setAlertMessage("You have not clocked In today ");
-            setAlertSeverity("error");
-          });
+        setAlertMessage(
+          `You already clocked out today by ${new Date(
+            data.clockOut
+          ).toLocaleTimeString("en-US", options)}`
+        );
+        setAlertSeverity("error");
       }
     } else {
       setClockIn(false);
@@ -152,6 +152,16 @@ function ClockInClockOut() {
       setAlertSeverity("error");
     }
   };
+
+  const theme = createTheme({
+    palette: {
+      custom: {
+        main: "#458b94",
+dark:"#284c5a",
+        contrastText: "#fff",
+      },
+    },
+  });
   return (
     <Grid
       px="2rem"
@@ -161,7 +171,7 @@ function ClockInClockOut() {
       alignItems="center"
       minHeight="100vh"
       direction="column"
-      mb="1rem"
+      mb="2rem"
     >
       {alertMessage && (
         <Grid mt={1} mb={"-2rem"} item>
@@ -172,7 +182,7 @@ function ClockInClockOut() {
       )}
 
       <Grid item xs={12} container justifyContent="center" alignItems="center">
-        <Grid item>
+        <Grid item mt={{ xs: "2rem" }}>
           <EmployeeCard />
         </Grid>
       </Grid>
@@ -185,30 +195,40 @@ function ClockInClockOut() {
         spacing="1rem"
       >
         <Grid item>
-          {clockedIn ? (
+          {/* {clockedIn ? (
             <Button disabled variant="contained" color="info">
               Clock In
             </Button>
-          ) : (
-            <Button variant="contained" color="info" onClick={handleClockIn}>
+          ) : ( */}
+          <ThemeProvider theme={theme}>
+            <Button
+              startIcon={<Login />}
+              variant="contained"
+              color="custom"
+              onClick={handleClockIn}
+              sx={{paddingX:"1.5rem"}}
+            >
               Clock In
             </Button>
-          )}
+          </ThemeProvider>
+          {/* )} */}
         </Grid>
         <Grid item>
-          {clockedIn ? (
-            <Button
-              variant="outlined"
-              color="warning"
-              onClick={handleClickOpen}
-            >
-              Clock Out
-            </Button>
-          ) : (
+          {/* {clockedIn ? ( */}
+          <Button
+            endIcon={<Logout />}
+            variant="contained"
+            color="error"
+            onClick={handleClickOpen}
+            sx={{paddingX:"1rem"}}
+          >
+            Clock Out
+          </Button>
+          {/* ) : (
             <Button disabled variant="outlined" color="warning">
               Clock Out
             </Button>
-          )}
+          )} */}
         </Grid>
 
         <Dialog
@@ -218,7 +238,7 @@ function ClockInClockOut() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"You are about to Clock Out for the day?"}
+            {"You are about to clock out for the day?"}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
@@ -229,7 +249,7 @@ function ClockInClockOut() {
           <DialogActions>
             <Button onClick={handleClose}>No</Button>
             <Button onClick={handleClockOut} autoFocus>
-              Yes
+              Confirm
             </Button>
           </DialogActions>
         </Dialog>

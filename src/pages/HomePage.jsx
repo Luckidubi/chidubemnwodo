@@ -9,7 +9,13 @@ function HomePage() {
     setSelectedDate(event.target.value);
   };
   return (
-    <Container maxWidth="md" sx={{ marginTop: "2rem", marginBottom: "5rem" }}>
+    <Container
+      maxWidth="md"
+      sx={{
+        marginTop: "2rem",
+        marginBottom: "5rem",
+      }}
+    >
       <Typography variant="h4" gutterBottom component="h1">
         Attendance List
       </Typography>
