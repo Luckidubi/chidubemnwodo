@@ -16,7 +16,6 @@ import { useAuth } from "../context/AuthProvider";
 function Header() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user, logOut } = useAuth();
- 
   const name = user?.displayName;
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -39,7 +38,7 @@ function Header() {
         mx={2}
       >
         <NavLink to="/" style={{ textDecoration: "none" }}>
-          <img src={logo} alt="logo" height="100" width="100" />
+          <img src={logo} alt="logo" height="50" width="100" />
         </NavLink>
         <Box display="flex">
           <Box
